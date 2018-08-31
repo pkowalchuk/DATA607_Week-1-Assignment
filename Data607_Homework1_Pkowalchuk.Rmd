@@ -1,0 +1,96 @@
+---
+title: "Data 607 - Homework 1"
+author: "Peter Kowalchuk"
+date: "August 29, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Load livrary to scrape data from University of California Irvine website
+
+```{r}
+library(curl)
+```
+
+Load data original data from website into variable originalDataCSV
+
+```{r}
+data_url <- 'https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data'
+original <- curl(data_url)
+originalDataCSV<-readLines(original)
+```
+
+
+Store original CSV data into an R dtaframe
+```{r}
+originalData<-read.csv(text=originalDataCSV,header=FALSE)
+```
+
+
+See first few rows of data set
+```{r}
+head(originalData)
+```
+
+Create array with names for all atributes/columns
+```{r}
+atributes<-c('classes','cap-shape','capsurface','capcolor','bruises','odor','gillattachment','gillspacing','gillsize','gillcolor','stalkshape','stalkroot','stalksurfaceabovering','stalksurfacebelowring','stalkcolorabovering','stalkcolorbelowring','veiltype','veilcolor','ringnumber','ringtype','sporeprintcolor','population','habitat')
+```
+
+Assign Ccolumn names to data set
+```{r}
+colnames(originalData)<-atributes
+head(originalData)
+```
+
+Subset the data frame to include the classes column (edible or not), and four other columns. Selected were: odor, gill-color, stalk-root and habitat
+```{r}
+selectedData<-originalData[c('classes','odor','gillsize','stalkshape','habitat')]
+head(selectedData)
+```
+
+Next we replace the abbreviations used in the dataset with meaningful names.
+
+```{r}
+
+classes<-data.frame(sapply(selectedData$classes,function(x) { gsub("e","edible",x)}))
+classes<-data.frame(sapply(classes,function(x) { gsub("p","poisonous",x)}))
+
+odor<-data.frame(sapply(selectedData$odor,function(x) { gsub("a","almond",x)}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="l","anise",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="c","creosote",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="y","fishy",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="f","foul",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="m","musty",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="n","none",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="p","pungent",as.character(x))}))
+odor<-data.frame(sapply(odor,function(x) {ifelse(x=="s","spicy",as.character(x))}))
+
+gillsize<-data.frame(sapply(selectedData$gillsize,function(x) {ifelse(x=="b","broad",as.character(x))}))
+gillsize<-data.frame(sapply(gillsize,function(x) {ifelse(x=="n","narrow",as.character(x))}))
+
+stalkshape<-data.frame(sapply(selectedData$stalkshape,function(x) {ifelse(x=="e","enlarging",as.character(x))}))
+stalkshape<-data.frame(sapply(stalkshape,function(x) {ifelse(x=="t","tapering",as.character(x))}))
+
+habitat<-data.frame(sapply(selectedData$habitat,function(x) {ifelse(x=="g","grasses",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="l","leaves",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="m","meadows",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="p","paths",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="u","urban",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="w","waste",as.character(x))}))
+habitat<-data.frame(sapply(habitat,function(x) {ifelse(x=="d","woods",as.character(x))}))
+
+finalData<-data.frame(classes=classes,odor=odor, gillsize=gillsize, stalkshape=stalkshape,habitat=habitat)
+colnames(finalData)<-c('classes','odor','gillsize','stalkshape','habitat')
+head(finalData)
+tail(finalData)
+
+```
+
+
+
